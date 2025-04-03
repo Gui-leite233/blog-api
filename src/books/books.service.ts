@@ -1,46 +1,48 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
-import { NotFoundException } from '@nestjs/common';
-
-export interface Book {
-    id: number;
-    title: string;
-    author: string;
-    description?: string;
-    publishedDate?: Date;
-  }
+import { Book, BookDocument } from './schemas/book.schema';
 
 @Injectable()
 export class BooksService {
-    private books: Book[] = [];
-  private idCounter = 1;
+  constructor(@InjectModel(Book.name) private bookModel: Model<BookDocument>) {}
 
-  create(createBookDto: CreateBookDto): Book {
-    const newBook: Book = { id: this.idCounter++, ...createBookDto };
-    this.books.push(newBook);
-    return newBook;
+  async create(createBookDto: CreateBookDto): Promise<Book> {
+    const newBook = new this.bookModel(createBookDto);
+    return newBook.save();
   }
 
-  findAll(): Book[] {
-    return this.books;
+  async findAll(): Promise<Book[]> {
+    return this.bookModel.find().exec();
   }
 
-  findOne(id: number): Book {
-    const book = this.books.find(b => b.id === id);
-    if (!book) throw new NotFoundException(`Book with id ${id} not found`);
+  async findOne(id: string): Promise<Book> {
+    const book = await this.bookModel.findById(id).exec();
+    if (!book) {
+      throw new NotFoundException(`Book with ID ${id} not found`);
+    }
     return book;
   }
 
-  update(id: number, updateBookDto: UpdateBookDto): Book {
-    const book = this.findOne(id);
-    Object.assign(book, updateBookDto);
-    return book;
+  async update(id: string, updateBookDto: UpdateBookDto): Promise<Book> {
+    const updatedBook = await this.bookModel
+      .findByIdAndUpdate(id, updateBookDto, { new: true })
+      .exec();
+    
+    if (!updatedBook) {
+      throw new NotFoundException(`Book with ID ${id} not found`);
+    }
+    
+    return updatedBook;
   }
 
-  remove(id: number): void {
-    const index = this.books.findIndex(b => b.id === id);
-    if (index === -1) throw new NotFoundException(`Book with id ${id} not found`);
-    this.books.splice(index, 1);
+  async remove(id: string): Promise<void> {
+    const result = await this.bookModel.deleteOne({ _id: id }).exec();
+    
+    if (result.deletedCount === 0) {
+      throw new NotFoundException(`Book with ID ${id} not found`);
+    }
   }
 }
