@@ -2,10 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
-export interface LoginDto {
-    username: string;
-    password: string;
-}
+import { LoginDto } from '../users/dto/login.dto';
 
 @Injectable()
 export class AuthService {
@@ -15,32 +12,50 @@ export class AuthService {
     ) { }
 
     async validateUser(username: string, password: string): Promise<any> {
-        const user = await this.usersService.findByUsername(username);
-        if (user && await bcrypt.compare(password, user.password)) {
-            const { password, ...result } = user;
-            return result;
+        try {
+            const user = await this.usersService.findByUsername(username);
+            
+            if (!user) {
+                throw new UnauthorizedException('User not found');
+            }
+            
+            if (await bcrypt.compare(password, user.password)) {
+                const { password, ...result } = user;
+                return result;
+            }
+            throw new UnauthorizedException('Invalid password');
+        } catch (error) {
+            console.error('Validation error:', error);
+            throw new UnauthorizedException('Invalid credentials');
         }
-        return null;
     }
-
-
 
     async login(loginDto: LoginDto) {
-        const { username, password } = loginDto;
-        const user = await this.usersService.findByUsername(username);
-        if (!user) {
-            throw new UnauthorizedException('User not found');
+        try {
+            const { username, password } = loginDto;
+            const user = await this.usersService.findByUsername(username);
+            
+            if (!user) {
+                throw new UnauthorizedException('User not found');
+            }
+            
+            const isPasswordValid = await bcrypt.compare(password, user.password);
+            if (!isPasswordValid) {
+                throw new UnauthorizedException('Invalid password');
+            }
+            
+            const payload = { username: user.username, sub: user._id, roles: user.roles };
+            return {
+                access_token: this.jwtService.sign(payload),
+                user: {
+                    id: user._id,
+                    username: user.username,
+                    roles: user.roles,
+                },
+            };
+        } catch (error) {
+            console.error('Login error:', error);
+            throw new UnauthorizedException('Invalid credentials');
         }
-        const payload = { username: user.username, sub: user._id, roles: user.roles };
-        return {
-            access_token: this.jwtService.sign(payload),
-            user: {
-                id: user._id,
-                username: user.username,
-                roles: user.roles,
-            },
-        };
     }
-
-
 }

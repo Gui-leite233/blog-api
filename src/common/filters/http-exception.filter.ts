@@ -14,8 +14,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
     let error: string;
     
     if (typeof errorResponse === 'object' && errorResponse !== null) {
-      errorMessage = 'message' in errorResponse ? errorResponse['message'] : 'Internal server error';
-      error = 'error' in errorResponse ? errorResponse['error'] : 'Error';
+      errorMessage = 'message' in errorResponse ? String(errorResponse['message']) : 'Internal server error';
+      error = 'error' in errorResponse ? String(errorResponse['error']) : 'Error';
     } else {
       errorMessage = exception.message;
       error = 'Error';
