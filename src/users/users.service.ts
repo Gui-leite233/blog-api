@@ -53,4 +53,16 @@ export class UsersService {
     async findAll(): Promise<User[]> {
         return this.userModel.find().select('-password').exec();
     }
+
+    async remove(id: string): Promise<void> {
+        if (!Types.ObjectId.isValid(id)) {
+            throw new NotFoundException(`Invalid user ID format: ${id}`);
+        }
+        
+        const result = await this.userModel.deleteOne({ _id: id }).exec();
+        
+        if (result.deletedCount === 0) {
+            throw new NotFoundException(`User with ID ${id} not found`);
+        }
+    }
 }
