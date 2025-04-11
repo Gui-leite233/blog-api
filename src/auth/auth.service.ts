@@ -45,16 +45,14 @@ export class AuthService {
                 throw new UnauthorizedException('Invalid password');
             }
             
-            // Extract _id safely and ensure it's a string
-            const userId = user._id ? user._id.toString() : null;
-            if (!userId) {
+            if (!user._id) {
                 throw new UnauthorizedException('User ID is missing');
             }
             
             const payload = { 
-                sub: userId,
+                sub: user._id.toString(),
                 username: user.username, 
-                roles: user.roles 
+                roles: user.roles || ['user']
             };
             
             return {
