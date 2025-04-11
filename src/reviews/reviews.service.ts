@@ -1,5 +1,5 @@
 // src/reviews/reviews.service.ts
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, forwardRef, Inject } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Review, ReviewDocument } from './schemas/review.schema';
@@ -11,6 +11,7 @@ import { BooksService } from '../books/books.service';
 export class ReviewsService {
   constructor(
     @InjectModel(Review.name) private reviewModel: Model<ReviewDocument>,
+    @Inject(forwardRef(() => BooksService))
     private booksService: BooksService,
   ) {}
 

@@ -44,4 +44,7 @@ export class UsersService {
         }
         return user;
     }
+    async findAll(): Promise<User[]> {
+        return this.userModel.find().select('-password').exec();
+    }
 }

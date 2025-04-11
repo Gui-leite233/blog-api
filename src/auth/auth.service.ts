@@ -44,11 +44,10 @@ export class AuthService {
                 throw new UnauthorizedException('Invalid password');
             }
             
-            const payload = { username: user.username, sub: user._id, roles: user.roles };
+            const payload = { username: user.username, roles: user.roles };
             return {
                 access_token: this.jwtService.sign(payload),
                 user: {
-                    id: user._id,
                     username: user.username,
                     roles: user.roles,
                 },

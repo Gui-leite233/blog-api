@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, forwardRef, Inject, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateBookDto } from './dto/create-book.dto';
@@ -10,6 +10,7 @@ import { ReviewsService } from '../reviews/reviews.service';
 export class BooksService {
   constructor(
     @InjectModel(Book.name) private bookModel: Model<BookDocument>,
+    @Inject(forwardRef(() => ReviewsService))
     private reviewsService: ReviewsService,
   ) {}
 
