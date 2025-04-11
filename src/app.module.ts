@@ -27,7 +27,6 @@ import { AuthorsModule } from './authors/authors.module';
     AuthModule,
     CategoriesModule,
     ReviewsModule,
-    ReviewsModule,
     AuthorsModule
   ],
   controllers: [AppController],
