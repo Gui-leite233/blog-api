@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsOptional, IsDate, IsArray } from 'class-validator';
+import { IsNotEmpty, IsString, IsOptional, IsDate, IsArray, IsMongoId } from 'class-validator';
 
 export class CreateBookDto {
   @IsNotEmpty()
@@ -6,7 +6,7 @@ export class CreateBookDto {
   title: string;
 
   @IsNotEmpty()
-  @IsString()
+  @IsMongoId()
   author: string;
 
   @IsOptional()

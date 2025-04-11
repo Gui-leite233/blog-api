@@ -53,8 +53,17 @@ export class ReviewsService {
       throw new NotFoundException(`Review with ID ${id} not found`);
     }
     
-    return review;
+    return review;  
   }
+
+  async findOneOrFail(id: string): Promise<Review> {  
+    const review = await this.reviewModel.findById(id);  
+    if (!review) {  
+      throw new NotFoundException('Review not found');  
+    }  
+    return review;  
+  }  
+  
 
   async update(id: string, userId: string, updateReviewDto: UpdateReviewDto): Promise<Review> {
     const review = await this.reviewModel.findById(id).exec();
@@ -85,7 +94,7 @@ export class ReviewsService {
       .populate('book')
       .exec();
     
-    return updatedReview;
+    return review;
   }
 
   async remove(id: string, userId: string): Promise<void> {
