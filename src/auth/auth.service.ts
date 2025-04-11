@@ -45,11 +45,18 @@ export class AuthService {
                 throw new UnauthorizedException('Invalid password');
             }
             
+            // Extract _id safely and ensure it's a string
+            const userId = user._id ? user._id.toString() : null;
+            if (!userId) {
+                throw new UnauthorizedException('User ID is missing');
+            }
+            
             const payload = { 
-                sub: user._id.toString(),
+                sub: userId,
                 username: user.username, 
                 roles: user.roles 
-              };
+            };
+            
             return {
                 access_token: this.jwtService.sign(payload),
                 user: {

@@ -1,6 +1,6 @@
 import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { User, UserDocument } from './schemas/users.schema';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -30,6 +30,11 @@ export class UsersService {
     }
 
     async findById(id: string): Promise<User | null> {
+        // Validate that id is a valid ObjectId
+        if (!Types.ObjectId.isValid(id)) {
+            throw new NotFoundException(`Invalid user ID format: ${id}`);
+        }
+        
         const user = await this.userModel.findById(id).select('-password').exec();
         if (!user) {
             throw new NotFoundException(`User with ID ${id} not found`);
@@ -44,6 +49,7 @@ export class UsersService {
         }
         return user;
     }
+    
     async findAll(): Promise<User[]> {
         return this.userModel.find().select('-password').exec();
     }
