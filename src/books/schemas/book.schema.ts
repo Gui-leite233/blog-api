@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Schema as MongooseSchema } from 'mongoose';
-import { Category } from 'src/categories/schemas/category.schema';
+import { Category } from '../../categories/schemas/category.schema';
 
 export type BookDocument = HydratedDocument<Book>;
 
@@ -17,8 +17,8 @@ export class Book {
 
   @Prop()
   publishedDate?: Date;
-
-  @Prop({type: [{type: MongooseSchema.Types.ObjectId, ref: 'Category'}]})
+  
+  @Prop({ type: [{ type: MongooseSchema.Types.ObjectId, ref: 'Category' }] })
   categories: Category[];
 }
 

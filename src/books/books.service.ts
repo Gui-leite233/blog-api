@@ -15,11 +15,11 @@ export class BooksService {
   }
 
   async findAll(): Promise<Book[]> {
-    return this.bookModel.find().exec();
+    return this.bookModel.find().populate('categories').exec();
   }
 
   async findOne(id: string): Promise<Book> {
-    const book = await this.bookModel.findById(id).exec();
+    const book = await this.bookModel.findById(id).populate('categories').exec();
     if (!book) {
       throw new NotFoundException(`Book with ID ${id} not found`);
     }
@@ -29,6 +29,7 @@ export class BooksService {
   async update(id: string, updateBookDto: UpdateBookDto): Promise<Book> {
     const updatedBook = await this.bookModel
       .findByIdAndUpdate(id, updateBookDto, { new: true })
+      .populate('categories')
       .exec();
     
     if (!updatedBook) {
@@ -44,5 +45,9 @@ export class BooksService {
     if (result.deletedCount === 0) {
       throw new NotFoundException(`Book with ID ${id} not found`);
     }
+  }
+
+  async findByCategory(categoryId: string): Promise<Book[]> {
+    return this.bookModel.find({ categories: categoryId }).populate('categories').exec();
   }
 }
